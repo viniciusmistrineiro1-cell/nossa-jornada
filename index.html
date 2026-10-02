@@ -1498,8 +1498,11 @@
       pointer-events: none;
 
       transition:
-        transform 2.1s cubic-bezier(0.22, 0.61, 0.36, 1),
-        opacity 1.6s ease;
+        transform 2.35s cubic-bezier(0.22, 0.61, 0.36, 1),
+        opacity 1.75s ease;
+
+      will-change: transform, opacity;
+      transform: translate3d(0, 0, 0);
     }
 
     .cloud-field.back {
@@ -1587,8 +1590,7 @@
 
     .reveal-clouds .cloud-field.back {
       transform:
-        translateX(-115vw)
-        translateY(-22vh)
+        translate3d(-170vw, -22vh, 0)
         rotate(-6deg);
 
       opacity: 0;
@@ -1596,8 +1598,7 @@
 
     .reveal-clouds .cloud-field.mid {
       transform:
-        translateX(115vw)
-        translateY(18vh)
+        translate3d(170vw, 18vh, 0)
         rotate(5deg);
 
       opacity: 0;
@@ -1605,8 +1606,7 @@
 
     .reveal-clouds .cloud-field.front {
       transform:
-        translateX(-130vw)
-        translateY(35vh)
+        translate3d(-190vw, 35vh, 0)
         rotate(-8deg);
 
       opacity: 0;
@@ -1635,12 +1635,14 @@
         display: none;
       }
 
+      /* No celular, a bússola sai do cabeçalho para não cobrir o título. */
       .compass-hud {
-        top: 15px;
-        right: 15px;
+        top: auto;
+        right: 14px;
+        bottom: 78px;
 
-        width: 67px;
-        height: 67px;
+        width: 58px;
+        height: 58px;
       }
 
       .compass-ring {
@@ -1667,9 +1669,19 @@
         border-top-width: 17px;
       }
 
+      /* Controles de zoom ficam lado a lado e fáceis de tocar. */
       .map-controls {
-        left: 15px;
+        left: 14px;
         bottom: 18px;
+        flex-direction: row;
+        gap: 7px;
+      }
+
+      .map-control {
+        width: 45px;
+        height: 45px;
+        font-size: 21px;
+        border-radius: 10px;
       }
 
       .audio-control {
@@ -1684,11 +1696,7 @@
       }
 
       #explore-hint {
-        bottom: 80px;
-
-        font-size: 12px;
-
-        white-space: nowrap;
+        display: none;
       }
 
       .map-pin {
@@ -1721,6 +1729,24 @@
       .start-button {
         width: 100%;
         max-width: 310px;
+      }
+
+      /*
+        No smartphone os campos são proporcionalmente menores, mas as nuvens
+        continuam grandes. Por isso o deslocamento precisa ser maior para que
+        nenhuma faixa fique presa na tela durante a abertura. O desenho das
+        nuvens não é alterado — apenas o trajeto da animação.
+      */
+      .reveal-clouds .cloud-field.back {
+        transform: translate3d(-285vw, -20vh, 0) rotate(-7deg);
+      }
+
+      .reveal-clouds .cloud-field.mid {
+        transform: translate3d(285vw, 17vh, 0) rotate(6deg);
+      }
+
+      .reveal-clouds .cloud-field.front {
+        transform: translate3d(-310vw, 31vh, 0) rotate(-9deg);
       }
     }
 
@@ -2505,6 +2531,11 @@
 
     let destinosRevelados = new Set();
 
+    /* Estado dos dedos/ponteiros para permitir pinch-to-zoom no celular. */
+    const ponteirosAtivos = new Map();
+    let distanciaPinchAnterior = null;
+    let escalaPinchBase = null;
+
 
     /* =========================================================
        TRANSFORMAÇÃO
@@ -2944,49 +2975,68 @@
 
 
     /* =========================================================
-       DRAG
+       DRAG + PINCH NO CELULAR
     ========================================================= */
+
+    function distanciaEntrePonteiros() {
+
+      const pontos = [...ponteirosAtivos.values()];
+
+      if (pontos.length < 2) {
+        return 0;
+      }
+
+      const dx = pontos[0].clientX - pontos[1].clientX;
+      const dy = pontos[0].clientY - pontos[1].clientY;
+
+      return Math.hypot(dx, dy);
+    }
+
+
+    function centroEntrePonteiros() {
+
+      const pontos = [...ponteirosAtivos.values()];
+
+      return {
+        x: (pontos[0].clientX + pontos[1].clientX) / 2,
+        y: (pontos[0].clientY + pontos[1].clientY) / 2
+      };
+    }
+
 
     mapContainer.addEventListener(
       "pointerdown",
       function(event) {
 
-        if (
-          event.target.closest(".map-pin") ||
-          animandoCamera
-        ) {
+        if (event.target.closest(".map-pin") || animandoCamera) {
           return;
         }
 
+        ponteirosAtivos.set(event.pointerId, event);
+
+        try {
+          mapContainer.setPointerCapture(event.pointerId);
+        } catch (e) {}
+
+        if (ponteirosAtivos.size >= 2) {
+          /* Dois dedos: cancela o arrasto e inicia o zoom por pinça. */
+          arrastando = false;
+          mapContainer.classList.remove("dragging");
+          distanciaPinchAnterior = distanciaEntrePonteiros();
+          escalaPinchBase = escala;
+          esconderDica();
+          return;
+        }
 
         arrastando = true;
+        mapContainer.classList.add("dragging");
 
-        mapContainer.classList.add(
-          "dragging"
-        );
-
-
-        inicioX =
-          event.clientX;
-
-        inicioY =
-          event.clientY;
-
-
-        posInicialX =
-          posX;
-
-        posInicialY =
-          posY;
-
-
-        mapContainer.setPointerCapture(
-          event.pointerId
-        );
-
+        inicioX = event.clientX;
+        inicioY = event.clientY;
+        posInicialX = posX;
+        posInicialY = posY;
 
         esconderDica();
-
       }
     );
 
@@ -2995,57 +3045,72 @@
       "pointermove",
       function(event) {
 
+        if (ponteirosAtivos.has(event.pointerId)) {
+          ponteirosAtivos.set(event.pointerId, event);
+        }
+
+        if (ponteirosAtivos.size >= 2) {
+          event.preventDefault();
+
+          const distanciaAtual = distanciaEntrePonteiros();
+          const centro = centroEntrePonteiros();
+
+          if (distanciaPinchAnterior && distanciaAtual) {
+            const fator = distanciaAtual / distanciaPinchAnterior;
+            const novaEscala = escala * fator;
+
+            const rect = mapContainer.getBoundingClientRect();
+            const pontoX = centro.x - rect.left;
+            const pontoY = centro.y - rect.top;
+
+            aplicarZoomNoPonto(novaEscala, pontoX, pontoY);
+          }
+
+          distanciaPinchAnterior = distanciaAtual;
+          return;
+        }
+
         if (!arrastando) {
           return;
         }
 
-
-        posX =
-          posInicialX +
-          (
-            event.clientX -
-            inicioX
-          );
-
-
-        posY =
-          posInicialY +
-          (
-            event.clientY -
-            inicioY
-          );
-
+        posX = posInicialX + (event.clientX - inicioX);
+        posY = posInicialY + (event.clientY - inicioY);
 
         limitarPosicao();
-
         aplicarTransformacao();
-
         atualizarPosicaoCard();
-
       }
     );
 
 
-    function terminarArrasto() {
+    function terminarArrasto(event) {
 
-      arrastando = false;
+      ponteirosAtivos.delete(event.pointerId);
 
-      mapContainer.classList.remove(
-        "dragging"
-      );
+      if (ponteirosAtivos.size < 2) {
+        distanciaPinchAnterior = null;
+        escalaPinchBase = null;
+      }
 
+      if (ponteirosAtivos.size === 1) {
+        /* Se soltou um dedo durante a pinça, continua sem iniciar salto. */
+        arrastando = false;
+      } else {
+        arrastando = false;
+      }
+
+      mapContainer.classList.remove("dragging");
     }
 
 
-    mapContainer.addEventListener(
-      "pointerup",
-      terminarArrasto
-    );
-
-    mapContainer.addEventListener(
-      "pointercancel",
-      terminarArrasto
-    );
+    mapContainer.addEventListener("pointerup", terminarArrasto);
+    mapContainer.addEventListener("pointercancel", terminarArrasto);
+    mapContainer.addEventListener("pointerleave", function(event) {
+      if (event.pointerType === "mouse" && arrastando) {
+        terminarArrasto(event);
+      }
+    });
 
 
     /* =========================================================
@@ -3076,8 +3141,8 @@
 
         const delta =
           event.deltaY < 0
-            ? 0.14
-            : -0.14;
+            ? 0.16
+            : -0.16;
 
 
         aplicarZoomNoPonto(
