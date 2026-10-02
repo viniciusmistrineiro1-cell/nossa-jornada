@@ -1,0 +1,3741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>A Nossa Primeira Grande Jornada 📜🗡️</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+  <script>
+    (function () {
+      emailjs.init("SEU_PUBLIC_KEY_AQUI");
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+
+    /* =========================================================
+       BASE
+    ========================================================= */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #172019;
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: #f1e5c8;
+      user-select: none;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .hidden {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+
+    /* =========================================================
+       APP
+    ========================================================= */
+
+    #app {
+      position: fixed;
+      inset: 0;
+
+      width: 100vw;
+      height: 100vh;
+
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at center,
+          rgba(79, 91, 61, 0.25),
+          rgba(20, 29, 22, 0.94)
+        );
+
+      opacity: 1;
+
+      transition: opacity 1s ease;
+    }
+
+    #app.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+
+    /* =========================================================
+       MAPA
+    ========================================================= */
+
+    .map-area {
+      position: absolute;
+      inset: 0;
+
+      width: 100vw;
+      height: 100vh;
+
+      overflow: hidden;
+    }
+
+    #map-container {
+      position: absolute;
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: hidden;
+
+      border: none;
+      border-radius: 0;
+
+      background: #75664a;
+
+      cursor: grab;
+
+      user-select: none;
+      touch-action: none;
+
+      box-shadow:
+        inset 0 0 180px rgba(12, 19, 14, 0.72),
+        inset 0 0 60px rgba(0, 0, 0, 0.35);
+    }
+
+    #map-container.dragging {
+      cursor: grabbing;
+    }
+
+    #map-world {
+      position: absolute;
+
+      width: 1200px;
+      height: 900px;
+
+      left: 0;
+      top: 0;
+
+      transform-origin: 0 0;
+
+      will-change: transform;
+    }
+
+    #map-image {
+      position: absolute;
+
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: fill;
+
+      pointer-events: none;
+      user-select: none;
+    }
+
+
+    /* =========================================================
+       ATMOSFERA
+    ========================================================= */
+
+    .world-atmosphere {
+      position: absolute;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          transparent 38%,
+          rgba(20, 28, 21, 0.16) 65%,
+          rgba(10, 16, 12, 0.68) 100%
+        );
+
+      z-index: 20;
+    }
+
+    .world-top-fade {
+      position: absolute;
+
+      top: 0;
+      left: 0;
+      right: 0;
+
+      height: 190px;
+
+      pointer-events: none;
+
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(16, 24, 19, 0.78),
+          rgba(16, 24, 19, 0)
+        );
+
+      z-index: 21;
+    }
+
+    .world-bottom-fade {
+      position: absolute;
+
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      height: 180px;
+
+      pointer-events: none;
+
+      background:
+        linear-gradient(
+          to top,
+          rgba(12, 19, 14, 0.82),
+          rgba(12, 19, 14, 0)
+        );
+
+      z-index: 21;
+    }
+
+
+    /* =========================================================
+       HUD SUPERIOR
+    ========================================================= */
+
+    .game-hud-top {
+      position: absolute;
+
+      top: 24px;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      z-index: 100;
+
+      width: min(680px, calc(100vw - 32px));
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      pointer-events: none;
+    }
+
+    .hud-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+
+      padding: 7px 15px;
+
+      border: 1px solid rgba(213, 187, 132, 0.65);
+
+      border-radius: 999px;
+
+      background:
+        rgba(24, 37, 27, 0.76);
+
+      backdrop-filter: blur(8px);
+
+      color: #d8bd86;
+
+      font-family: "Cinzel", serif;
+      font-size: 10px;
+      font-weight: 700;
+
+      letter-spacing: 0.18em;
+
+      box-shadow:
+        0 6px 22px rgba(0,0,0,0.22);
+    }
+
+    .hud-title {
+      margin-top: 9px;
+
+      font-family: "Cinzel", serif;
+
+      font-size: clamp(18px, 2.6vw, 31px);
+
+      font-weight: 800;
+
+      letter-spacing: 0.07em;
+
+      text-align: center;
+
+      color: #f3e5c6;
+
+      text-shadow:
+        0 3px 15px rgba(0,0,0,0.75);
+    }
+
+    .hud-subtitle {
+      margin-top: 2px;
+
+      font-family: "Cormorant Garamond", serif;
+
+      font-size: 15px;
+
+      font-style: italic;
+
+      color: rgba(238, 224, 193, 0.88);
+
+      text-shadow:
+        0 2px 8px rgba(0,0,0,0.9);
+    }
+
+
+    /* =========================================================
+       HUD ESQUERDO
+    ========================================================= */
+
+    .exploration-hud {
+      position: absolute;
+
+      left: 25px;
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      z-index: 100;
+
+      width: 205px;
+
+      padding: 15px;
+
+      border-left: 2px solid rgba(207, 180, 126, 0.55);
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(18, 28, 21, 0.78),
+          rgba(18, 28, 21, 0.42),
+          transparent
+        );
+
+      backdrop-filter: blur(5px);
+
+      pointer-events: none;
+    }
+
+    .exploration-label {
+      font-family: "Cinzel", serif;
+
+      font-size: 9px;
+
+      letter-spacing: 0.2em;
+
+      color: #cbb17e;
+
+      margin-bottom: 8px;
+    }
+
+    .exploration-title {
+      font-family: "Cinzel", serif;
+
+      font-size: 16px;
+
+      font-weight: 700;
+
+      color: #f2e6c9;
+
+      margin-bottom: 7px;
+    }
+
+    .exploration-text {
+      font-family: "Cormorant Garamond", serif;
+
+      font-size: 15px;
+
+      line-height: 1.25;
+
+      color: rgba(242, 229, 201, 0.78);
+    }
+
+
+    /* =========================================================
+       BÚSSOLA
+    ========================================================= */
+
+    .compass-hud {
+      position: absolute;
+
+      right: 25px;
+      top: 28px;
+
+      z-index: 110;
+
+      width: 92px;
+      height: 92px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid rgba(216, 188, 132, 0.55);
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(31, 43, 31, 0.9),
+          rgba(18, 28, 21, 0.74)
+        );
+
+      backdrop-filter: blur(8px);
+
+      box-shadow:
+        0 8px 28px rgba(0,0,0,0.32),
+        inset 0 0 18px rgba(207, 175, 108, 0.08);
+
+      pointer-events: none;
+    }
+
+    .compass-ring {
+      position: absolute;
+
+      inset: 8px;
+
+      border: 1px solid rgba(205, 174, 109, 0.4);
+
+      border-radius: 50%;
+    }
+
+    .compass-inner {
+      position: absolute;
+
+      inset: 17px;
+
+      border: 1px dashed rgba(205, 174, 109, 0.27);
+
+      border-radius: 50%;
+    }
+
+    .compass-direction {
+      position: absolute;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 8px;
+
+      font-weight: 800;
+
+      color: #cbb27b;
+
+      text-shadow:
+        0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    .compass-n {
+      top: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .compass-s {
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .compass-e {
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .compass-w {
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .compass-needle {
+      position: absolute;
+
+      width: 4px;
+      height: 48px;
+
+      left: 50%;
+      top: 50%;
+
+      transform:
+        translate(-50%, -50%)
+        rotate(0deg);
+
+      transform-origin: center;
+
+      transition:
+        transform 0.6s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .compass-needle::before {
+      content: "";
+
+      position: absolute;
+
+      left: 50%;
+      top: 0;
+
+      transform: translateX(-50%);
+
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 24px solid #c9a866;
+    }
+
+    .compass-needle::after {
+      content: "";
+
+      position: absolute;
+
+      left: 50%;
+      bottom: 0;
+
+      transform: translateX(-50%);
+
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 24px solid #4e3923;
+    }
+
+    .compass-center {
+      position: absolute;
+
+      width: 11px;
+      height: 11px;
+
+      border-radius: 50%;
+
+      background: #d6b976;
+
+      border: 2px solid #4d3924;
+
+      box-shadow:
+        0 0 10px rgba(218, 183, 108, 0.7);
+    }
+
+
+    /* =========================================================
+       PINS
+    ========================================================= */
+
+    .map-pin {
+      position: absolute;
+
+      width: 42px;
+      height: 42px;
+
+      transform:
+        translate(-50%, -50%);
+
+      border: none;
+
+      background: transparent;
+
+      cursor: pointer;
+
+      z-index: 30;
+
+      transition:
+        transform 0.25s ease;
+    }
+
+    .map-pin:hover {
+      transform:
+        translate(-50%, -50%)
+        scale(1.16);
+    }
+
+    .pin-aura {
+      position: absolute;
+
+      inset: 1px;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(235, 202, 135, 0.85) 0%,
+          rgba(235, 202, 135, 0.22) 34%,
+          transparent 70%
+        );
+
+      animation:
+        pinPulse 2.4s ease-in-out infinite;
+    }
+
+    .pin-core {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 19px;
+      height: 19px;
+
+      transform: translate(-50%, -50%);
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          #fff3cf,
+          #cba866 48%,
+          #72532e 100%
+        );
+
+      border: 2px solid #f0dbab;
+
+      box-shadow:
+        0 0 0 3px rgba(39, 52, 36, 0.65),
+        0 0 18px rgba(231, 197, 126, 0.82),
+        0 4px 8px rgba(0,0,0,0.55);
+    }
+
+    .pin-core::after {
+      content: "";
+
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      width: 5px;
+      height: 5px;
+
+      transform: translate(-50%, -50%);
+
+      border-radius: 50%;
+
+      background: #263425;
+    }
+
+    .pin-label {
+      position: absolute;
+
+      left: 50%;
+      top: calc(100% + 6px);
+
+      transform: translateX(-50%);
+
+      white-space: nowrap;
+
+      padding: 4px 8px;
+
+      border: 1px solid rgba(212, 184, 128, 0.55);
+
+      background: rgba(25, 35, 26, 0.84);
+
+      color: #ead9b5;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 8px;
+
+      letter-spacing: 0.08em;
+
+      opacity: 0;
+
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+
+      pointer-events: none;
+
+      box-shadow:
+        0 4px 12px rgba(0,0,0,0.35);
+    }
+
+    .map-pin:hover .pin-label {
+      opacity: 1;
+
+      transform:
+        translateX(-50%)
+        translateY(2px);
+    }
+
+    .map-pin.selected .pin-core {
+      box-shadow:
+        0 0 0 4px rgba(238, 211, 158, 0.35),
+        0 0 32px rgba(255, 220, 146, 1),
+        0 0 60px rgba(225, 188, 111, 0.55);
+    }
+
+    @keyframes pinPulse {
+      0%, 100% {
+        transform: scale(0.82);
+        opacity: 0.48;
+      }
+
+      50% {
+        transform: scale(1.15);
+        opacity: 0.9;
+      }
+    }
+
+
+    /* =========================================================
+       REGIÃO DESCONHECIDA
+    ========================================================= */
+
+    .fog-reveal {
+      position: absolute;
+
+      width: 175px;
+      height: 175px;
+
+      left: 0;
+      top: 0;
+
+      transform:
+        translate(-50%, -50%);
+
+      z-index: 27;
+
+      pointer-events: none;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(210, 215, 197, 0.92) 0%,
+          rgba(194, 201, 182, 0.72) 38%,
+          rgba(170, 180, 163, 0.42) 60%,
+          transparent 76%
+        );
+
+      filter: blur(12px);
+
+      transition:
+        opacity 1.1s ease,
+        transform 1.3s ease;
+    }
+
+    .fog-reveal::before,
+    .fog-reveal::after {
+      content: "";
+
+      position: absolute;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(235, 237, 222, 0.75),
+          rgba(183, 191, 175, 0.15) 70%,
+          transparent
+        );
+
+      filter: blur(10px);
+    }
+
+    .fog-reveal::before {
+      width: 120px;
+      height: 90px;
+
+      left: -45px;
+      top: 45px;
+    }
+
+    .fog-reveal::after {
+      width: 130px;
+      height: 100px;
+
+      right: -45px;
+      top: 25px;
+    }
+
+    .fog-reveal.revealed {
+      opacity: 0;
+
+      transform:
+        translate(-50%, -50%)
+        scale(1.75);
+    }
+
+    .unknown-mark {
+      position: absolute;
+
+      left: 50%;
+      top: 50%;
+
+      transform:
+        translate(-50%, -50%);
+
+      color: rgba(70, 78, 67, 0.65);
+
+      font-family: "Cinzel", serif;
+
+      font-size: 24px;
+
+      text-shadow:
+        0 2px 4px rgba(255,255,255,0.25);
+    }
+
+
+    /* =========================================================
+       CONTROLES
+    ========================================================= */
+
+    .map-controls {
+      position: absolute;
+
+      left: 25px;
+      bottom: 27px;
+
+      z-index: 100;
+
+      display: flex;
+      flex-direction: column;
+
+      gap: 7px;
+    }
+
+    .map-control {
+      width: 43px;
+      height: 43px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid rgba(216, 188, 132, 0.62);
+
+      border-radius: 9px;
+
+      background:
+        rgba(24, 35, 27, 0.82);
+
+      color: #e4ce9e;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 20px;
+
+      cursor: pointer;
+
+      backdrop-filter: blur(7px);
+
+      box-shadow:
+        0 5px 18px rgba(0,0,0,0.28);
+
+      transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .map-control:hover {
+      transform: translateY(-2px);
+
+      background:
+        rgba(46, 59, 42, 0.92);
+    }
+
+
+    /* =========================================================
+       ÁUDIO
+    ========================================================= */
+
+    .audio-control {
+      position: absolute;
+
+      right: 25px;
+      bottom: 27px;
+
+      z-index: 100;
+
+      display: flex;
+      align-items: center;
+      gap: 9px;
+
+      padding: 11px 15px;
+
+      border: 1px solid rgba(216, 188, 132, 0.56);
+
+      border-radius: 9px;
+
+      background:
+        rgba(24, 35, 27, 0.82);
+
+      color: #e5d2a7;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 9px;
+
+      letter-spacing: 0.08em;
+
+      cursor: pointer;
+
+      backdrop-filter: blur(7px);
+
+      box-shadow:
+        0 5px 18px rgba(0,0,0,0.28);
+
+      transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .audio-control:hover {
+      transform: translateY(-2px);
+
+      background:
+        rgba(46, 59, 42, 0.92);
+    }
+
+
+    /* =========================================================
+       DICA
+    ========================================================= */
+
+    #explore-hint {
+      position: absolute;
+
+      left: 50%;
+      bottom: 30px;
+
+      transform: translateX(-50%);
+
+      z-index: 90;
+
+      padding: 9px 15px;
+
+      border: 1px solid rgba(220, 194, 143, 0.42);
+
+      border-radius: 999px;
+
+      background:
+        rgba(23, 33, 25, 0.65);
+
+      color: rgba(241, 224, 190, 0.8);
+
+      font-family: "Cormorant Garamond", serif;
+
+      font-size: 14px;
+
+      font-style: italic;
+
+      backdrop-filter: blur(5px);
+
+      transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+
+      pointer-events: none;
+    }
+
+    #explore-hint.fade-hint {
+      opacity: 0;
+
+      transform:
+        translateX(-50%)
+        translateY(12px);
+    }
+
+
+    /* =========================================================
+       CARD
+    ========================================================= */
+
+    #popover-card {
+      position: fixed;
+
+      z-index: 500;
+
+      width: min(365px, calc(100vw - 30px));
+
+      max-height: calc(100vh - 40px);
+
+      overflow-y: auto;
+
+      color: #eadfc7;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(29, 43, 31, 0.98),
+          rgba(18, 28, 21, 0.98)
+        );
+
+      border: 1px solid rgba(213, 183, 126, 0.7);
+
+      border-radius: 12px;
+
+      box-shadow:
+        0 22px 70px rgba(0,0,0,0.55),
+        inset 0 0 35px rgba(210, 182, 124, 0.04);
+
+      backdrop-filter: blur(12px);
+
+      animation:
+        questAppear 0.35s ease both;
+    }
+
+    @keyframes questAppear {
+      from {
+        opacity: 0;
+        transform: scale(0.94) translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .quest-top-line {
+      height: 3px;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          #c9a866,
+          transparent
+        );
+    }
+
+    .card-close {
+      position: absolute;
+
+      top: 12px;
+      right: 12px;
+
+      width: 29px;
+      height: 29px;
+
+      border: 1px solid rgba(215, 185, 127, 0.35);
+
+      border-radius: 50%;
+
+      background: rgba(0,0,0,0.22);
+
+      color: #d9c49a;
+
+      cursor: pointer;
+
+      z-index: 3;
+    }
+
+    .quest-image {
+      width: 100%;
+      height: 145px;
+
+      object-fit: cover;
+
+      border-bottom:
+        1px solid rgba(213, 183, 126, 0.35);
+    }
+
+    .quest-content {
+      padding: 19px;
+    }
+
+    .quest-kicker {
+      color: #c9a866;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 9px;
+
+      font-weight: 700;
+
+      letter-spacing: 0.2em;
+    }
+
+    .quest-title {
+      margin-top: 5px;
+
+      padding-right: 25px;
+
+      color: #f1e3c4;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 22px;
+
+      line-height: 1.15;
+
+      font-weight: 800;
+    }
+
+    .quest-region {
+      margin-top: 4px;
+
+      color: #bca77d;
+
+      font-family: "Cormorant Garamond", serif;
+
+      font-size: 16px;
+
+      font-style: italic;
+    }
+
+    .quest-description {
+      margin-top: 14px;
+
+      color: rgba(239, 227, 202, 0.82);
+
+      font-family: "Cormorant Garamond", serif;
+
+      font-size: 17px;
+
+      line-height: 1.35;
+    }
+
+    .quest-section-title {
+      margin-top: 17px;
+
+      margin-bottom: 7px;
+
+      color: #c9a866;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 9px;
+
+      letter-spacing: 0.16em;
+    }
+
+    .quest-highlights {
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 6px;
+    }
+
+    .quest-tag {
+      padding: 5px 8px;
+
+      border:
+        1px solid rgba(210, 179, 121, 0.28);
+
+      border-radius: 5px;
+
+      background:
+        rgba(211, 182, 122, 0.06);
+
+      color: #d7c39c;
+
+      font-size: 9px;
+    }
+
+    .quest-button {
+      width: 100%;
+
+      margin-top: 19px;
+
+      padding: 12px 15px;
+
+      border: 1px solid #c6a364;
+
+      border-radius: 7px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #9e7b43,
+          #6e532d
+        );
+
+      color: #fff2d1;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      letter-spacing: 0.1em;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 5px 18px rgba(0,0,0,0.25);
+
+      transition:
+        transform 0.2s ease,
+        filter 0.2s ease;
+    }
+
+    .quest-button:hover {
+      transform: translateY(-1px);
+
+      filter: brightness(1.12);
+    }
+
+
+    /* =========================================================
+       SELO
+    ========================================================= */
+
+    .seal-result {
+      padding: 28px 20px;
+
+      text-align: center;
+    }
+
+    .seal-symbol {
+      width: 70px;
+      height: 70px;
+
+      margin: 0 auto 15px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border:
+        1px solid rgba(213, 183, 126, 0.7);
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle,
+          rgba(202, 168, 102, 0.22),
+          rgba(202, 168, 102, 0.03)
+        );
+
+      font-size: 29px;
+
+      box-shadow:
+        0 0 25px rgba(200, 165, 100, 0.17);
+    }
+
+    .seal-title {
+      color: #ecd9b0;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 20px;
+
+      font-weight: 800;
+
+      letter-spacing: 0.08em;
+    }
+
+    .seal-text {
+      margin-top: 10px;
+
+      color: #c7b58e;
+
+      font-family: "Cormorant Garamond", serif;
+
+      font-size: 17px;
+
+      line-height: 1.35;
+    }
+
+    .seal-code {
+      display: inline-block;
+
+      margin-top: 15px;
+
+      padding: 7px 11px;
+
+      border:
+        1px dashed rgba(213, 183, 126, 0.5);
+
+      color: #d9c08c;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 10px;
+
+      letter-spacing: 0.12em;
+    }
+
+
+    /* =========================================================
+       INTRO
+    ========================================================= */
+
+    #intro-screen {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 9999;
+
+      overflow: hidden;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        linear-gradient(
+          rgba(11, 19, 14, 0.92),
+          rgba(9, 16, 12, 0.95)
+        );
+
+      transition:
+        opacity 1.1s ease,
+        visibility 1.1s ease;
+    }
+
+    #intro-screen.hidden-intro {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .intro-darkness {
+      position: absolute;
+
+      inset: 0;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          rgba(58, 73, 51, 0.15),
+          rgba(5, 10, 7, 0.8) 72%
+        );
+
+      z-index: 1;
+
+      pointer-events: none;
+    }
+
+    .intro-content {
+      position: relative;
+
+      z-index: 300;
+
+      width: min(620px, calc(100vw - 35px));
+
+      text-align: center;
+
+      padding: 30px;
+
+      transition:
+        opacity 0.8s ease,
+        transform 0.8s ease;
+    }
+
+    .intro-content.fade-away {
+      opacity: 0;
+
+      transform:
+        translateY(-20px)
+        scale(0.97);
+    }
+
+    .intro-symbol {
+      font-size: 43px;
+
+      filter:
+        drop-shadow(0 4px 14px rgba(0,0,0,0.75));
+
+      animation:
+        swordFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes swordFloat {
+      0%, 100% {
+        transform: translateY(0) rotate(-3deg);
+      }
+
+      50% {
+        transform: translateY(-7px) rotate(3deg);
+      }
+    }
+
+    .intro-small {
+      margin-top: 12px;
+
+      color: #c9ab70;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 10px;
+
+      font-weight: 700;
+
+      letter-spacing: 0.3em;
+    }
+
+    .intro-title {
+      margin-top: 10px;
+
+      color: #f1e2c2;
+
+      font-family: "Cinzel", serif;
+
+      font-size: clamp(29px, 5vw, 53px);
+
+      line-height: 1.08;
+
+      font-weight: 800;
+
+      text-shadow:
+        0 5px 25px rgba(0,0,0,0.85);
+    }
+
+    .intro-divider {
+      width: 150px;
+      height: 1px;
+
+      margin: 19px auto;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          #c5a466,
+          transparent
+        );
+    }
+
+    .intro-text {
+      max-width: 520px;
+
+      margin: 0 auto;
+
+      color: rgba(239, 225, 197, 0.82);
+
+      font-family: "Cormorant Garamond", serif;
+
+      font-size: 19px;
+
+      line-height: 1.35;
+
+      font-style: italic;
+
+      text-shadow:
+        0 2px 9px rgba(0,0,0,0.9);
+    }
+
+    .start-button {
+      margin-top: 28px;
+
+      padding: 14px 26px;
+
+      border: 1px solid #c7a967;
+
+      border-radius: 6px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(148, 112, 55, 0.95),
+          rgba(83, 62, 33, 0.95)
+        );
+
+      color: #fff0cf;
+
+      font-family: "Cinzel", serif;
+
+      font-size: 11px;
+
+      font-weight: 800;
+
+      letter-spacing: 0.13em;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 7px 30px rgba(0,0,0,0.42);
+
+      transition:
+        transform 0.25s ease,
+        filter 0.25s ease;
+    }
+
+    .start-button:hover {
+      transform: translateY(-2px);
+
+      filter: brightness(1.15);
+    }
+
+
+    /* =========================================================
+       NUVENS
+    ========================================================= */
+
+    .cloud-field {
+      position: absolute;
+
+      inset: -15%;
+
+      z-index: 100;
+
+      pointer-events: none;
+
+      transition:
+        transform 2.1s cubic-bezier(0.22, 0.61, 0.36, 1),
+        opacity 1.6s ease;
+    }
+
+    .cloud-field.back {
+      z-index: 10;
+
+      opacity: 0.82;
+      filter: blur(2px);
+    }
+
+    .cloud-field.mid {
+      z-index: 20;
+
+      opacity: 0.94;
+    }
+
+    .cloud-field.front {
+      z-index: 200;
+
+      opacity: 1;
+    }
+
+    .cloud {
+      position: absolute;
+
+      width: var(--w);
+      height: var(--h);
+
+      left: var(--x);
+      top: var(--y);
+
+      border-radius: 999px;
+
+      background:
+        radial-gradient(
+          ellipse at 50% 40%,
+          rgba(246, 244, 229, 0.97),
+          rgba(219, 222, 207, 0.95) 60%,
+          rgba(178, 184, 170, 0.88) 100%
+        );
+
+      box-shadow:
+        var(--shadow);
+
+      filter:
+        blur(var(--blur));
+
+      opacity: var(--opacity);
+
+      transform:
+        rotate(var(--rotate));
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+
+      position: absolute;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle at 50% 45%,
+          rgba(247, 246, 232, 0.98),
+          rgba(209, 214, 199, 0.94) 72%,
+          rgba(174, 181, 167, 0.86)
+        );
+    }
+
+    .cloud::before {
+      width: 48%;
+      height: 145%;
+
+      left: 12%;
+      bottom: 8%;
+    }
+
+    .cloud::after {
+      width: 55%;
+      height: 170%;
+
+      right: 8%;
+      bottom: 4%;
+    }
+
+    .reveal-clouds .cloud-field.back {
+      transform:
+        translateX(-115vw)
+        translateY(-22vh)
+        rotate(-6deg);
+
+      opacity: 0;
+    }
+
+    .reveal-clouds .cloud-field.mid {
+      transform:
+        translateX(115vw)
+        translateY(18vh)
+        rotate(5deg);
+
+      opacity: 0;
+    }
+
+    .reveal-clouds .cloud-field.front {
+      transform:
+        translateX(-130vw)
+        translateY(35vh)
+        rotate(-8deg);
+
+      opacity: 0;
+    }
+
+
+    /* =========================================================
+       RESPONSIVO
+    ========================================================= */
+
+    @media (max-width: 700px) {
+
+      .game-hud-top {
+        top: 15px;
+      }
+
+      .hud-title {
+        font-size: 17px;
+      }
+
+      .hud-subtitle {
+        font-size: 13px;
+      }
+
+      .exploration-hud {
+        display: none;
+      }
+
+      .compass-hud {
+        top: 15px;
+        right: 15px;
+
+        width: 67px;
+        height: 67px;
+      }
+
+      .compass-ring {
+        inset: 6px;
+      }
+
+      .compass-inner {
+        inset: 12px;
+      }
+
+      .compass-needle {
+        height: 34px;
+      }
+
+      .compass-needle::before {
+        border-left-width: 4px;
+        border-right-width: 4px;
+        border-bottom-width: 17px;
+      }
+
+      .compass-needle::after {
+        border-left-width: 4px;
+        border-right-width: 4px;
+        border-top-width: 17px;
+      }
+
+      .map-controls {
+        left: 15px;
+        bottom: 18px;
+      }
+
+      .audio-control {
+        right: 15px;
+        bottom: 18px;
+
+        padding: 10px 12px;
+      }
+
+      #texto-audio {
+        display: none;
+      }
+
+      #explore-hint {
+        bottom: 80px;
+
+        font-size: 12px;
+
+        white-space: nowrap;
+      }
+
+      .map-pin {
+        width: 38px;
+        height: 38px;
+      }
+
+      .pin-label {
+        display: none;
+      }
+
+      #popover-card {
+        width: calc(100vw - 24px);
+
+        max-height: 72vh;
+      }
+
+      .quest-image {
+        height: 125px;
+      }
+
+      .intro-content {
+        padding: 20px;
+      }
+
+      .intro-text {
+        font-size: 17px;
+      }
+
+      .start-button {
+        width: 100%;
+        max-width: 310px;
+      }
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+
+  <!-- =======================================================
+       MUNDO
+  ======================================================== -->
+
+  <div id="app">
+
+    <main class="map-area">
+
+      <div id="map-container">
+
+        <div id="map-world">
+
+          <img
+            id="map-image"
+            src="mapa.jpg"
+            alt="Mapa da nossa jornada"
+            draggable="false"
+          >
+
+
+          <!-- =================================================
+               DESTINO 1
+          ================================================== -->
+
+          <button
+            class="map-pin"
+            data-index="0"
+            style="left:60%; top:63%;"
+            onclick="selecionarDestino(0,event)"
+            aria-label="O Refúgio do Condado"
+          >
+            <span class="pin-aura"></span>
+            <span class="pin-core"></span>
+            <span class="pin-label">O REFÚGIO DO CONDADO</span>
+          </button>
+
+
+          <!-- =================================================
+               DESTINO 2
+          ================================================== -->
+
+          <button
+            class="map-pin"
+            data-index="1"
+            style="left:77%; top:65%;"
+            onclick="selecionarDestino(1,event)"
+            aria-label="Os Portos Cinzentos"
+          >
+            <span class="pin-aura"></span>
+            <span class="pin-core"></span>
+            <span class="pin-label">OS PORTOS CINZENTOS</span>
+          </button>
+
+
+          <!-- =================================================
+               DESTINO 3
+          ================================================== -->
+
+          <button
+            class="map-pin"
+            data-index="2"
+            style="left:64%; top:52%;"
+            onclick="selecionarDestino(2,event)"
+            aria-label="O Vale de Valfenda"
+          >
+            <span class="pin-aura"></span>
+            <span class="pin-core"></span>
+            <span class="pin-label">O VALE DE VALFENDA</span>
+          </button>
+
+
+          <!-- =================================================
+               DESTINO 4
+          ================================================== -->
+
+          <button
+            class="map-pin"
+            data-index="3"
+            style="left:74%; top:78%;"
+            onclick="selecionarDestino(3,event)"
+            aria-label="O Vale de Rivendell"
+          >
+            <span class="pin-aura"></span>
+            <span class="pin-core"></span>
+            <span class="pin-label">O VALE DE RIVENDELL</span>
+          </button>
+
+
+          <!-- =================================================
+               DESTINO 5
+          ================================================== -->
+
+          <button
+            class="map-pin"
+            data-index="4"
+            style="left:60%; top:86%;"
+            onclick="selecionarDestino(4,event)"
+            aria-label="As Montanhas de Névoa"
+          >
+            <span class="pin-aura"></span>
+            <span class="pin-core"></span>
+            <span class="pin-label">AS MONTANHAS DE NÉVOA</span>
+          </button>
+
+
+          <!-- =================================================
+               DESTINO 6
+          ================================================== -->
+
+          <button
+            class="map-pin"
+            data-index="5"
+            style="left:44%; top:26%;"
+            onclick="selecionarDestino(5,event)"
+            aria-label="As Fontes de Lorien"
+          >
+            <span class="pin-aura"></span>
+            <span class="pin-core"></span>
+            <span class="pin-label">AS FONTES DE LORIEN</span>
+          </button>
+
+
+          <!-- =================================================
+               NÉVOAS DOS DESTINOS
+          ================================================== -->
+
+          <div
+            class="fog-reveal"
+            id="fog-0"
+            data-fog-index="0"
+            style="left:60%; top:63%;"
+          >
+            <span class="unknown-mark">?</span>
+          </div>
+
+          <div
+            class="fog-reveal"
+            id="fog-1"
+            data-fog-index="1"
+            style="left:77%; top:65%;"
+          >
+            <span class="unknown-mark">?</span>
+          </div>
+
+          <div
+            class="fog-reveal"
+            id="fog-2"
+            data-fog-index="2"
+            style="left:64%; top:52%;"
+          >
+            <span class="unknown-mark">?</span>
+          </div>
+
+          <div
+            class="fog-reveal"
+            id="fog-3"
+            data-fog-index="3"
+            style="left:74%; top:78%;"
+          >
+            <span class="unknown-mark">?</span>
+          </div>
+
+          <div
+            class="fog-reveal"
+            id="fog-4"
+            data-fog-index="4"
+            style="left:60%; top:86%;"
+          >
+            <span class="unknown-mark">?</span>
+          </div>
+
+          <div
+            class="fog-reveal"
+            id="fog-5"
+            data-fog-index="5"
+            style="left:44%; top:26%;"
+          >
+            <span class="unknown-mark">?</span>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ATMOSFERA -->
+
+      <div class="world-atmosphere"></div>
+
+      <div class="world-top-fade"></div>
+
+      <div class="world-bottom-fade"></div>
+
+
+      <!-- =====================================================
+           HUD SUPERIOR
+      ====================================================== -->
+
+      <div class="game-hud-top">
+
+        <div class="hud-badge">
+          🗡️ &nbsp; MAPA DA NOSSA JORNADA
+        </div>
+
+        <div class="hud-title">
+          A Nossa Primeira Grande Jornada
+        </div>
+
+        <div class="hud-subtitle">
+          Seis caminhos. Uma aventura para dois.
+        </div>
+
+      </div>
+
+
+      <!-- =====================================================
+           HUD ESQUERDO
+      ====================================================== -->
+
+      <div class="exploration-hud">
+
+        <div class="exploration-label">
+          REGISTRO DO VIAJANTE
+        </div>
+
+        <div class="exploration-title">
+          O mundo aguarda.
+        </div>
+
+        <div class="exploration-text">
+          Existem caminhos que só aparecem
+          quando decidimos sair pela porta.
+        </div>
+
+      </div>
+
+
+      <!-- =====================================================
+           BÚSSOLA
+      ====================================================== -->
+
+      <div class="compass-hud">
+
+        <div class="compass-ring"></div>
+
+        <div class="compass-inner"></div>
+
+        <span class="compass-direction compass-n">
+          N
+        </span>
+
+        <span class="compass-direction compass-s">
+          S
+        </span>
+
+        <span class="compass-direction compass-e">
+          L
+        </span>
+
+        <span class="compass-direction compass-w">
+          O
+        </span>
+
+        <div
+          class="compass-needle"
+          id="compass-needle"
+        ></div>
+
+        <div class="compass-center"></div>
+
+      </div>
+
+
+      <!-- =====================================================
+           CONTROLES
+      ====================================================== -->
+
+      <div class="map-controls">
+
+        <button
+          class="map-control"
+          onclick="zoomMapa(0.22)"
+          title="Aumentar zoom"
+        >
+          +
+        </button>
+
+        <button
+          class="map-control"
+          onclick="zoomMapa(-0.22)"
+          title="Diminuir zoom"
+        >
+          −
+        </button>
+
+        <button
+          class="map-control"
+          onclick="recentralizarMapa(false)"
+          title="Recentrar mapa"
+        >
+          ⌾
+        </button>
+
+      </div>
+
+
+      <!-- =====================================================
+           ÁUDIO
+      ====================================================== -->
+
+      <button
+        id="btn-audio"
+        class="audio-control"
+        onclick="alternarAudio()"
+      >
+
+        <span id="icone-audio">🎵</span>
+
+        <span id="texto-audio">
+          Música do Condado
+        </span>
+
+      </button>
+
+
+      <!-- =====================================================
+           DICA
+      ====================================================== -->
+
+      <div id="explore-hint">
+        Arraste o mapa para explorar • Use a roda para aproximar
+      </div>
+
+    </main>
+
+
+    <!-- =======================================================
+         CARD
+    ======================================================== -->
+
+    <div id="popover-card" class="hidden">
+
+      <div class="quest-top-line"></div>
+
+      <button
+        class="card-close"
+        onclick="fecharPopover()"
+      >
+        ✕
+      </button>
+
+      <div id="popover-conteudo"></div>
+
+    </div>
+
+
+    <audio
+      id="musica-condado"
+      src="audio.mp3"
+      loop
+    ></audio>
+
+  </div>
+
+
+  <!-- =========================================================
+       INTRO
+  ========================================================== -->
+
+  <section id="intro-screen">
+
+    <div class="intro-darkness"></div>
+
+
+    <!-- NUVENS DE FUNDO -->
+
+    <div class="cloud-field back">
+
+      <div
+        class="cloud"
+        style="
+          --w:480px;
+          --h:135px;
+          --x:2%;
+          --y:12%;
+          --blur:3px;
+          --opacity:.72;
+          --rotate:-4deg;
+          --shadow:0 25px 40px rgba(54,62,52,.32);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:620px;
+          --h:160px;
+          --x:42%;
+          --y:4%;
+          --blur:4px;
+          --opacity:.66;
+          --rotate:3deg;
+          --shadow:0 25px 40px rgba(54,62,52,.32);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:520px;
+          --h:150px;
+          --x:18%;
+          --y:72%;
+          --blur:3px;
+          --opacity:.67;
+          --rotate:5deg;
+          --shadow:0 25px 40px rgba(54,62,52,.3);
+        "
+      ></div>
+
+    </div>
+
+
+    <!-- NUVENS DO MEIO -->
+
+    <div class="cloud-field mid">
+
+      <div
+        class="cloud"
+        style="
+          --w:420px;
+          --h:125px;
+          --x:-4%;
+          --y:28%;
+          --blur:1px;
+          --opacity:.9;
+          --rotate:2deg;
+          --shadow:0 25px 40px rgba(52,60,51,.42);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:560px;
+          --h:150px;
+          --x:56%;
+          --y:18%;
+          --blur:1px;
+          --opacity:.91;
+          --rotate:-3deg;
+          --shadow:0 25px 40px rgba(52,60,51,.42);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:470px;
+          --h:140px;
+          --x:24%;
+          --y:47%;
+          --blur:2px;
+          --opacity:.93;
+          --rotate:4deg;
+          --shadow:0 25px 40px rgba(52,60,51,.42);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:610px;
+          --h:165px;
+          --x:66%;
+          --y:67%;
+          --blur:2px;
+          --opacity:.9;
+          --rotate:-5deg;
+          --shadow:0 25px 40px rgba(52,60,51,.42);
+        "
+      ></div>
+
+    </div>
+
+
+    <!-- NUVENS DA FRENTE -->
+
+    <div class="cloud-field front">
+
+      <div
+        class="cloud"
+        style="
+          --w:530px;
+          --h:160px;
+          --x:-8%;
+          --y:2%;
+          --blur:1px;
+          --opacity:.98;
+          --rotate:-5deg;
+          --shadow:0 30px 45px rgba(49,58,48,.55);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:500px;
+          --h:145px;
+          --x:68%;
+          --y:5%;
+          --blur:1px;
+          --opacity:.98;
+          --rotate:4deg;
+          --shadow:0 30px 45px rgba(49,58,48,.55);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:650px;
+          --h:180px;
+          --x:-18%;
+          --y:39%;
+          --blur:1px;
+          --opacity:.98;
+          --rotate:3deg;
+          --shadow:0 30px 45px rgba(49,58,48,.55);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:560px;
+          --h:155px;
+          --x:52%;
+          --y:40%;
+          --blur:1px;
+          --opacity:.99;
+          --rotate:-4deg;
+          --shadow:0 30px 45px rgba(49,58,48,.55);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:690px;
+          --h:190px;
+          --x:12%;
+          --y:78%;
+          --blur:1px;
+          --opacity:.98;
+          --rotate:-3deg;
+          --shadow:0 30px 45px rgba(49,58,48,.55);
+        "
+      ></div>
+
+      <div
+        class="cloud"
+        style="
+          --w:480px;
+          --h:140px;
+          --x:74%;
+          --y:79%;
+          --blur:1px;
+          --opacity:.98;
+          --rotate:5deg;
+          --shadow:0 30px 45px rgba(49,58,48,.55);
+        "
+      ></div>
+
+    </div>
+
+
+    <!-- CONTEÚDO -->
+
+    <div class="intro-content">
+
+      <div class="intro-symbol">
+        🗡️
+      </div>
+
+      <div class="intro-small">
+        UMA NOVA AVENTURA COMEÇA
+      </div>
+
+      <h1 class="intro-title">
+        Bem-vindos<br>
+        à nossa jornada
+      </h1>
+
+      <div class="intro-divider"></div>
+
+      <p class="intro-text">
+        “Uma nova estrada se abre diante de vocês.
+        Montanhas, vales, florestas e caminhos
+        aguardam além do horizonte.”
+      </p>
+
+      <p
+        class="intro-text"
+        style="margin-top:12px;"
+      >
+        <strong>
+          Uma aventura foi preparada para dois.
+        </strong>
+      </p>
+
+      <button
+        class="start-button"
+        onclick="iniciarJornada()"
+      >
+        ✦ &nbsp; INICIAR A JORNADA &nbsp; ✦
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <script>
+
+    /* =========================================================
+       DESTINOS
+    ========================================================= */
+
+    const rotas = [
+
+      {
+        nome: "O Refúgio do Condado",
+        regiao: "Serra da Mantiqueira • SP/MG",
+
+        descricao:
+          "Entre montanhas, pequenas cidades e paisagens tranquilas, um caminho para desacelerar e simplesmente aproveitar a companhia um do outro.",
+
+        imagem:
+          "mantiqueira.jpg",
+
+        destaques: [
+          "Montanhas",
+          "Chalés",
+          "Natureza",
+          "Romance"
+        ]
+      },
+
+      {
+        nome: "Os Portos Cinzentos",
+        regiao: "Paraty & Costa Verde • RJ",
+
+        descricao:
+          "Uma jornada entre mar, história, ruas antigas e paisagens costeiras. Um caminho para quem deseja misturar aventura e descanso.",
+
+        imagem:
+          "paraty.jpg",
+
+        destaques: [
+          "Praia",
+          "História",
+          "Centro histórico",
+          "Mar"
+        ]
+      },
+
+      {
+        nome: "O Vale de Valfenda",
+        regiao: "Tiradentes & Cidades Históricas • MG",
+
+        descricao:
+          "Um reino de pedras antigas, ruas charmosas, montanhas e sabores. Uma viagem para caminhar sem pressa e descobrir cada esquina.",
+
+        imagem:
+          "tiradentes.jpg",
+
+        destaques: [
+          "História",
+          "Gastronomia",
+          "Montanhas",
+          "Arquitetura"
+        ]
+      },
+
+      {
+        nome: "O Vale de Rivendell",
+        regiao: "Vale do Itajaí • SC",
+
+        descricao:
+          "Um caminho cercado por verde, arquitetura, montanhas e pequenas cidades. Um destino que mistura paisagens e experiências.",
+
+        imagem:
+          "valedoitajai.jpg",
+
+        destaques: [
+          "Natureza",
+          "Montanhas",
+          "Cidades",
+          "Paisagens"
+        ]
+      },
+
+      {
+        nome: "As Montanhas de Névoa",
+        regiao: "Praia Grande & Cambará do Sul • SC/RS",
+
+        descricao:
+          "Grandes cânions, montanhas e neblina. Uma jornada para contemplar paisagens que parecem ter saído de outro mundo.",
+
+        imagem:
+          "canions.jpg",
+
+        destaques: [
+          "Cânions",
+          "Trilhas",
+          "Neblina",
+          "Aventura"
+        ]
+      },
+
+      {
+        nome: "As Fontes de Lorien",
+        regiao: "Holambra & Circuito das Águas • SP",
+
+        descricao:
+          "Um caminho de flores, jardins, águas e pequenas cidades. Uma alternativa mais leve, colorida e romântica para nossa primeira aventura.",
+
+        imagem:
+          "circuitodasaguas.jpg",
+
+        destaques: [
+          "Flores",
+          "Jardins",
+          "Águas",
+          "Romance"
+        ]
+      }
+
+    ];
+
+
+    /* =========================================================
+       ESTADO
+    ========================================================= */
+
+    const mapContainer =
+      document.getElementById("map-container");
+
+    const mapWorld =
+      document.getElementById("map-world");
+
+    let escala = 1.34;
+
+    let posX = 0;
+    let posY = 0;
+
+    let arrastando = false;
+
+    let inicioX = 0;
+    let inicioY = 0;
+
+    let posInicialX = 0;
+    let posInicialY = 0;
+
+    let animandoCamera = false;
+
+    const escalaMinima = 0.72;
+    const escalaMaxima = 4.2;
+
+    let destinoAtual = null;
+
+    let destinosRevelados = new Set();
+
+
+    /* =========================================================
+       TRANSFORMAÇÃO
+    ========================================================= */
+
+    function aplicarTransformacao() {
+
+      mapWorld.style.transform =
+        `translate(${posX}px, ${posY}px) scale(${escala})`;
+
+      atualizarCompass();
+
+    }
+
+
+    /* =========================================================
+       BÚSSOLA
+    ========================================================= */
+
+    function atualizarCompass() {
+
+      const needle =
+        document.getElementById(
+          "compass-needle"
+        );
+
+      if (!needle) {
+        return;
+      }
+
+      /*
+        A bússola reage suavemente ao movimento
+        horizontal do mapa.
+
+        Não é uma bússola geográfica real:
+        é um elemento visual para reforçar
+        a sensação de exploração.
+      */
+
+      const rotacao =
+        Math.max(
+          -18,
+          Math.min(
+            18,
+            -posX / 55
+          )
+        );
+
+      needle.style.transform =
+        `translate(-50%, -50%) rotate(${rotacao}deg)`;
+
+    }
+
+
+    /* =========================================================
+       LIMITES
+    ========================================================= */
+
+    function limitarPosicao() {
+
+      const larguraMapa =
+        mapWorld.offsetWidth * escala;
+
+      const alturaMapa =
+        mapWorld.offsetHeight * escala;
+
+      const larguraTela =
+        mapContainer.clientWidth;
+
+      const alturaTela =
+        mapContainer.clientHeight;
+
+      const margem = 120;
+
+
+      if (larguraMapa <= larguraTela) {
+
+        posX =
+          (larguraTela - larguraMapa) / 2;
+
+      } else {
+
+        const minX =
+          larguraTela - larguraMapa - margem;
+
+        const maxX =
+          margem;
+
+        posX =
+          Math.max(
+            minX,
+            Math.min(
+              maxX,
+              posX
+            )
+          );
+
+      }
+
+
+      if (alturaMapa <= alturaTela) {
+
+        posY =
+          (alturaTela - alturaMapa) / 2;
+
+      } else {
+
+        const minY =
+          alturaTela - alturaMapa - margem;
+
+        const maxY =
+          margem;
+
+        posY =
+          Math.max(
+            minY,
+            Math.min(
+              maxY,
+              posY
+            )
+          );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       RECENTRALIZAR
+    ========================================================= */
+
+    function recentralizarMapa(
+      inicial = false
+    ) {
+
+      animandoCamera = false;
+
+      escala =
+        inicial
+          ? 1.34
+          : 1.12;
+
+
+      const larguraMapa =
+        mapWorld.offsetWidth *
+        escala;
+
+      const alturaMapa =
+        mapWorld.offsetHeight *
+        escala;
+
+
+      posX =
+        (mapContainer.clientWidth -
+          larguraMapa) / 2;
+
+      posY =
+        (mapContainer.clientHeight -
+          alturaMapa) / 2;
+
+
+      limitarPosicao();
+
+      aplicarTransformacao();
+
+      fecharPopover();
+
+    }
+
+
+    /* =========================================================
+       ZOOM
+    ========================================================= */
+
+    function zoomMapa(valor) {
+
+      const centroX =
+        mapContainer.clientWidth / 2;
+
+      const centroY =
+        mapContainer.clientHeight / 2;
+
+      aplicarZoomNoPonto(
+        escala + valor,
+        centroX,
+        centroY
+      );
+
+    }
+
+
+    function aplicarZoomNoPonto(
+      novaEscala,
+      pontoX,
+      pontoY
+    ) {
+
+      const escalaAnterior =
+        escala;
+
+
+      escala =
+        Math.max(
+          escalaMinima,
+          Math.min(
+            escalaMaxima,
+            novaEscala
+          )
+        );
+
+
+      if (
+        escala ===
+        escalaAnterior
+      ) {
+        return;
+      }
+
+
+      const mundoX =
+        (pontoX - posX) /
+        escalaAnterior;
+
+      const mundoY =
+        (pontoY - posY) /
+        escalaAnterior;
+
+
+      posX =
+        pontoX -
+        mundoX * escala;
+
+      posY =
+        pontoY -
+        mundoY * escala;
+
+
+      limitarPosicao();
+
+      aplicarTransformacao();
+
+      atualizarPosicaoCard();
+
+      esconderDica();
+
+    }
+
+
+    /* =========================================================
+       REVELAR REGIÃO
+    ========================================================= */
+
+    function revelarDestino(index) {
+
+      if (
+        destinosRevelados.has(index)
+      ) {
+        return;
+      }
+
+
+      destinosRevelados.add(index);
+
+
+      const fog =
+        document.getElementById(
+          `fog-${index}`
+        );
+
+
+      if (fog) {
+
+        fog.classList.add(
+          "revealed"
+        );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       CÂMERA
+    ========================================================= */
+
+    function aproximarDestino(pin) {
+
+      if (animandoCamera) {
+        return;
+      }
+
+
+      const index =
+        Number(
+          pin.dataset.index
+        );
+
+
+      revelarDestino(index);
+
+
+      const pinX =
+        pin.offsetLeft +
+        pin.offsetWidth / 2;
+
+      const pinY =
+        pin.offsetTop +
+        pin.offsetHeight / 2;
+
+
+      const alvoEscala =
+        Math.min(
+          escalaMaxima,
+          Math.max(
+            escala + 0.45,
+            1.75
+          )
+        );
+
+
+      const centroX =
+        mapContainer.clientWidth /
+        2;
+
+      const centroY =
+        mapContainer.clientHeight /
+        2;
+
+
+      const alvoX =
+        centroX -
+        pinX * alvoEscala;
+
+      const alvoY =
+        centroY -
+        pinY * alvoEscala;
+
+
+      animarCamera(
+        alvoX,
+        alvoY,
+        alvoEscala,
+        780
+      );
+
+    }
+
+
+    function animarCamera(
+      alvoX,
+      alvoY,
+      alvoEscala,
+      duracao
+    ) {
+
+      const inicioXCamera =
+        posX;
+
+      const inicioYCamera =
+        posY;
+
+      const inicioEscala =
+        escala;
+
+      const inicioTempo =
+        performance.now();
+
+
+      animandoCamera = true;
+
+
+      function frame(agora) {
+
+        const progresso =
+          Math.min(
+            1,
+            (agora - inicioTempo) /
+            duracao
+          );
+
+
+        const suavizado =
+          1 -
+          Math.pow(
+            1 - progresso,
+            4
+          );
+
+
+        posX =
+          inicioXCamera +
+          (alvoX - inicioXCamera) *
+          suavizado;
+
+        posY =
+          inicioYCamera +
+          (alvoY - inicioYCamera) *
+          suavizado;
+
+        escala =
+          inicioEscala +
+          (alvoEscala - inicioEscala) *
+          suavizado;
+
+
+        aplicarTransformacao();
+
+
+        if (
+          progresso < 1
+        ) {
+
+          requestAnimationFrame(
+            frame
+          );
+
+        } else {
+
+          animandoCamera = false;
+
+          limitarPosicao();
+
+          aplicarTransformacao();
+
+          atualizarPosicaoCard();
+
+        }
+
+      }
+
+
+      requestAnimationFrame(
+        frame
+      );
+
+    }
+
+
+    /* =========================================================
+       DRAG
+    ========================================================= */
+
+    mapContainer.addEventListener(
+      "pointerdown",
+      function(event) {
+
+        if (
+          event.target.closest(".map-pin") ||
+          animandoCamera
+        ) {
+          return;
+        }
+
+
+        arrastando = true;
+
+        mapContainer.classList.add(
+          "dragging"
+        );
+
+
+        inicioX =
+          event.clientX;
+
+        inicioY =
+          event.clientY;
+
+
+        posInicialX =
+          posX;
+
+        posInicialY =
+          posY;
+
+
+        mapContainer.setPointerCapture(
+          event.pointerId
+        );
+
+
+        esconderDica();
+
+      }
+    );
+
+
+    mapContainer.addEventListener(
+      "pointermove",
+      function(event) {
+
+        if (!arrastando) {
+          return;
+        }
+
+
+        posX =
+          posInicialX +
+          (
+            event.clientX -
+            inicioX
+          );
+
+
+        posY =
+          posInicialY +
+          (
+            event.clientY -
+            inicioY
+          );
+
+
+        limitarPosicao();
+
+        aplicarTransformacao();
+
+        atualizarPosicaoCard();
+
+      }
+    );
+
+
+    function terminarArrasto() {
+
+      arrastando = false;
+
+      mapContainer.classList.remove(
+        "dragging"
+      );
+
+    }
+
+
+    mapContainer.addEventListener(
+      "pointerup",
+      terminarArrasto
+    );
+
+    mapContainer.addEventListener(
+      "pointercancel",
+      terminarArrasto
+    );
+
+
+    /* =========================================================
+       WHEEL
+    ========================================================= */
+
+    mapContainer.addEventListener(
+      "wheel",
+      function(event) {
+
+        event.preventDefault();
+
+        esconderDica();
+
+
+        const rect =
+          mapContainer.getBoundingClientRect();
+
+
+        const pontoX =
+          event.clientX -
+          rect.left;
+
+        const pontoY =
+          event.clientY -
+          rect.top;
+
+
+        const delta =
+          event.deltaY < 0
+            ? 0.14
+            : -0.14;
+
+
+        aplicarZoomNoPonto(
+          escala + delta,
+          pontoX,
+          pontoY
+        );
+
+      },
+      {
+        passive: false
+      }
+    );
+
+
+    /* =========================================================
+       SELECIONAR DESTINO
+    ========================================================= */
+
+    function selecionarDestino(
+      index,
+      event
+    ) {
+
+      event.stopPropagation();
+
+
+      const item =
+        rotas[index];
+
+
+      destinoAtual =
+        index;
+
+
+      revelarDestino(index);
+
+
+      document
+        .querySelectorAll(".map-pin")
+        .forEach(pin => {
+
+          pin.classList.remove(
+            "selected"
+          );
+
+        });
+
+
+      event.currentTarget
+        .classList.add(
+          "selected"
+        );
+
+
+      const popover =
+        document.getElementById(
+          "popover-card"
+        );
+
+
+      const conteudo =
+        document.getElementById(
+          "popover-conteudo"
+        );
+
+
+      conteudo.innerHTML = `
+
+        <img
+          class="quest-image"
+          src="${item.imagem}"
+          alt="${item.nome}"
+        >
+
+        <div class="quest-content">
+
+          <div class="quest-kicker">
+            ✦ DESTINO DESCOBERTO
+          </div>
+
+          <div class="quest-title">
+            ${item.nome}
+          </div>
+
+          <div class="quest-region">
+            ${item.regiao}
+          </div>
+
+          <div class="quest-description">
+            ${item.descricao}
+          </div>
+
+          <div class="quest-section-title">
+            O QUE NOS AGUARDA
+          </div>
+
+          <div class="quest-highlights">
+
+            ${item.destaques
+              .map(
+                destaque =>
+                  `<span class="quest-tag">
+                    ${destaque}
+                  </span>`
+              )
+              .join("")
+            }
+
+          </div>
+
+          <button
+            class="quest-button"
+            onclick="confirmarEscolha(${index})"
+          >
+            ✦ ESCOLHER ESTA JORNADA ✦
+          </button>
+
+        </div>
+      `;
+
+
+      popover.classList.remove(
+        "hidden"
+      );
+
+
+      aproximarDestino(
+        event.currentTarget
+      );
+
+
+      setTimeout(
+        () => {
+
+          posicionarCard(
+            event.currentTarget
+          );
+
+        },
+        180
+      );
+
+    }
+
+
+    /* =========================================================
+       CARD
+    ========================================================= */
+
+    function posicionarCard(pin) {
+
+      const popover =
+        document.getElementById(
+          "popover-card"
+        );
+
+
+      if (
+        !pin ||
+        popover.classList.contains(
+          "hidden"
+        )
+      ) {
+        return;
+      }
+
+
+      const pinRect =
+        pin.getBoundingClientRect();
+
+
+      const margem = 15;
+
+
+      let left =
+        pinRect.right + 18;
+
+      let top =
+        pinRect.top - 20;
+
+
+      if (
+        left +
+        popover.offsetWidth >
+        window.innerWidth -
+        margem
+      ) {
+
+        left =
+          pinRect.left -
+          popover.offsetWidth -
+          18;
+
+      }
+
+
+      if (
+        left < margem
+      ) {
+
+        left = margem;
+
+      }
+
+
+      if (
+        top +
+        popover.offsetHeight >
+        window.innerHeight -
+        margem
+      ) {
+
+        top =
+          window.innerHeight -
+          popover.offsetHeight -
+          margem;
+
+      }
+
+
+      if (
+        top < margem
+      ) {
+
+        top = margem;
+
+      }
+
+
+      popover.style.left =
+        `${left}px`;
+
+      popover.style.top =
+        `${top}px`;
+
+    }
+
+
+    function atualizarPosicaoCard() {
+
+      if (
+        destinoAtual === null
+      ) {
+        return;
+      }
+
+
+      const pin =
+        document.querySelector(
+          `.map-pin[data-index="${destinoAtual}"]`
+        );
+
+
+      if (pin) {
+
+        posicionarCard(pin);
+
+      }
+
+    }
+
+
+    /* =========================================================
+       FECHAR
+    ========================================================= */
+
+    function fecharPopover() {
+
+      const popover =
+        document.getElementById(
+          "popover-card"
+        );
+
+
+      popover.classList.add(
+        "hidden"
+      );
+
+
+      document
+        .querySelectorAll(".map-pin")
+        .forEach(pin => {
+
+          pin.classList.remove(
+            "selected"
+          );
+
+        });
+
+
+      destinoAtual = null;
+
+    }
+
+
+    /* =========================================================
+       CONFIRMAR
+    ========================================================= */
+
+    function confirmarEscolha(index) {
+
+      const item =
+        rotas[index];
+
+
+      const codigo =
+        "#HOBBIT-" +
+        Math.floor(
+          100000 +
+          Math.random() *
+          900000
+        );
+
+
+      const data =
+        new Date()
+          .toLocaleDateString(
+            "pt-BR"
+          );
+
+
+      const popover =
+        document.getElementById(
+          "popover-card"
+        );
+
+
+      const conteudo =
+        document.getElementById(
+          "popover-conteudo"
+        );
+
+
+      conteudo.innerHTML = `
+
+        <div class="seal-result">
+
+          <div class="seal-symbol">
+            🗡️
+          </div>
+
+          <div class="seal-title">
+            JORNADA SELADA
+          </div>
+
+          <div class="seal-text">
+
+            O caminho foi escolhido.<br>
+
+            <strong>
+              ${item.nome}
+            </strong>
+
+            <br>
+
+            ${item.regiao}
+
+          </div>
+
+          <div class="seal-code">
+            ${codigo}
+          </div>
+
+          <div
+            style="
+              margin-top:12px;
+              font-family:'Cormorant Garamond',serif;
+              font-size:14px;
+              color:#9f916f;
+            "
+          >
+            Selado em ${data}
+          </div>
+
+          <button
+            class="quest-button"
+            onclick="fecharPopover()"
+          >
+            VOLTAR AO MAPA
+          </button>
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* =========================================================
+       ÁUDIO
+    ========================================================= */
+
+    function iniciarMusica() {
+
+      const audio =
+        document.getElementById(
+          "musica-condado"
+        );
+
+      const texto =
+        document.getElementById(
+          "texto-audio"
+        );
+
+      const icone =
+        document.getElementById(
+          "icone-audio"
+        );
+
+
+      audio.volume = 0.45;
+
+
+      audio.play()
+        .then(() => {
+
+          texto.innerText =
+            "Pausar Música";
+
+          icone.innerText =
+            "🔊";
+
+        })
+        .catch(error => {
+
+          console.log(
+            "O navegador não permitiu iniciar o áudio:",
+            error
+          );
+
+        });
+
+    }
+
+
+    function alternarAudio() {
+
+      const audio =
+        document.getElementById(
+          "musica-condado"
+        );
+
+      const texto =
+        document.getElementById(
+          "texto-audio"
+        );
+
+      const icone =
+        document.getElementById(
+          "icone-audio"
+        );
+
+
+      if (
+        audio.paused
+      ) {
+
+        audio.play()
+          .then(() => {
+
+            texto.innerText =
+              "Pausar Música";
+
+            icone.innerText =
+              "🔊";
+
+          })
+          .catch(error => {
+
+            console.error(
+              "Erro ao tocar áudio:",
+              error
+            );
+
+          });
+
+      } else {
+
+        audio.pause();
+
+        texto.innerText =
+          "Música do Condado";
+
+        icone.innerText =
+          "🎵";
+
+      }
+
+    }
+
+
+    /* =========================================================
+       DICA
+    ========================================================= */
+
+    let dicaEscondida = false;
+
+
+    function esconderDica() {
+
+      if (
+        dicaEscondida
+      ) {
+        return;
+      }
+
+
+      dicaEscondida = true;
+
+
+      const hint =
+        document.getElementById(
+          "explore-hint"
+        );
+
+
+      hint.classList.add(
+        "fade-hint"
+      );
+
+    }
+
+
+    /* =========================================================
+       INICIAR JORNADA
+    ========================================================= */
+
+    function iniciarJornada() {
+
+      const intro =
+        document.getElementById(
+          "intro-screen"
+        );
+
+
+      const content =
+        document.querySelector(
+          ".intro-content"
+        );
+
+
+      const app =
+        document.getElementById(
+          "app"
+        );
+
+
+      /*
+        O clique do usuário permite
+        iniciar a música imediatamente.
+      */
+
+      iniciarMusica();
+
+
+      app.classList.remove(
+        "hidden"
+      );
+
+
+      content.classList.add(
+        "fade-away"
+      );
+
+
+      intro.classList.add(
+        "reveal-clouds"
+      );
+
+
+      setTimeout(
+        () => {
+
+          intro.classList.add(
+            "hidden-intro"
+          );
+
+
+          setTimeout(
+            () => {
+
+              recentralizarMapa(
+                true
+              );
+
+            },
+            150
+          );
+
+        },
+        1450
+      );
+
+    }
+
+
+    /* =========================================================
+       LOAD
+    ========================================================= */
+
+    window.addEventListener(
+      "load",
+      () => {
+
+        setTimeout(
+          () => {
+
+            recentralizarMapa(
+              true
+            );
+
+          },
+          100
+        );
+
+      }
+    );
+
+
+    /* =========================================================
+       RESIZE
+    ========================================================= */
+
+    window.addEventListener(
+      "resize",
+      () => {
+
+        limitarPosicao();
+
+        aplicarTransformacao();
+
+        atualizarPosicaoCard();
+
+      }
+    );
+
+
+    /* =========================================================
+       ESC
+    ========================================================= */
+
+    document.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key === "Escape"
+        ) {
+
+          fecharPopover();
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
