@@ -1635,38 +1635,57 @@
         display: none;
       }
 
-      /* No celular, a bússola sai do cabeçalho para não cobrir o título. */
+      /*
+        No celular, a bússola fica ao lado do subtítulo.
+        Reservamos espaço para ela para que nenhuma palavra
+        fique por baixo do elemento.
+      */
       .compass-hud {
-        top: auto;
-        right: 14px;
-        bottom: 78px;
+        top: 104px;
+        right: 12px;
+        bottom: auto;
 
-        width: 58px;
-        height: 58px;
+        width: 50px;
+        height: 50px;
+      }
+
+      .hud-subtitle {
+        width: calc(100% - 72px);
+        margin-right: 72px;
+        text-align: center;
       }
 
       .compass-ring {
-        inset: 6px;
+        inset: 5px;
       }
 
       .compass-inner {
-        inset: 12px;
+        inset: 10px;
       }
 
       .compass-needle {
-        height: 34px;
+        height: 29px;
       }
 
       .compass-needle::before {
-        border-left-width: 4px;
-        border-right-width: 4px;
-        border-bottom-width: 17px;
+        border-left-width: 3px;
+        border-right-width: 3px;
+        border-bottom-width: 14px;
       }
 
       .compass-needle::after {
-        border-left-width: 4px;
-        border-right-width: 4px;
-        border-top-width: 17px;
+        border-left-width: 3px;
+        border-right-width: 3px;
+        border-top-width: 14px;
+      }
+
+      .compass-direction {
+        font-size: 7px;
+      }
+
+      .compass-center {
+        width: 8px;
+        height: 8px;
       }
 
       /* Controles de zoom ficam lado a lado e fáceis de tocar. */
@@ -1733,10 +1752,54 @@
 
       /*
         No smartphone os campos são proporcionalmente menores, mas as nuvens
-        continuam grandes. Por isso o deslocamento precisa ser maior para que
-        nenhuma faixa fique presa na tela durante a abertura. O desenho das
-        nuvens não é alterado — apenas o trajeto da animação.
+        continuam grandes. O desenho e a cor das nuvens permanecem exatamente
+        iguais ao desktop — apenas o deslocamento da animação é maior.
       */
+
+      /*
+        A névoa do mapa permanece clara no celular.
+        Reduzimos somente os filtros escuros da atmosfera responsiva.
+      */
+      .world-atmosphere {
+        background:
+          radial-gradient(
+            ellipse at center,
+            transparent 48%,
+            rgba(20, 28, 21, 0.05) 78%,
+            rgba(10, 16, 12, 0.18) 100%
+          );
+      }
+
+      .world-top-fade {
+        height: 110px;
+        background:
+          linear-gradient(
+            to bottom,
+            rgba(16, 24, 19, 0.22),
+            rgba(16, 24, 19, 0)
+          );
+      }
+
+      .world-bottom-fade {
+        height: 100px;
+        background:
+          linear-gradient(
+            to top,
+            rgba(12, 19, 14, 0.24),
+            rgba(12, 19, 14, 0)
+          );
+      }
+
+      .fog-reveal {
+        background:
+          radial-gradient(
+            circle,
+            rgba(226, 231, 214, 0.94) 0%,
+            rgba(210, 218, 201, 0.78) 38%,
+            rgba(191, 202, 185, 0.48) 60%,
+            transparent 76%
+          );
+      }
       .reveal-clouds .cloud-field.back {
         transform: translate3d(-285vw, -20vh, 0) rotate(-7deg);
       }
@@ -1747,6 +1810,21 @@
 
       .reveal-clouds .cloud-field.front {
         transform: translate3d(-310vw, 31vh, 0) rotate(-9deg);
+      }
+
+      @media (max-width: 380px) {
+        .compass-hud {
+          top: 108px;
+          right: 8px;
+          width: 46px;
+          height: 46px;
+        }
+
+        .hud-subtitle {
+          width: calc(100% - 62px);
+          margin-right: 62px;
+          font-size: 12px;
+        }
       }
     }
 
